@@ -13,9 +13,11 @@ script:
 - LIBSODIUM_VER=1.0.12
 - BUILDROOT=`pwd`
 - JOBS=`nproc`
-- wget https://tls.mbed.org/download/mbedtls-$MBEDTLS_VER-gpl.tgz -O - | tar xzf - -C .
+- wget https://tls.mbed.org/download/mbedtls-$MBEDTLS_VER-gpl.tgz -O - | tar xzf -
+  -C .
 - wget https://ftp.pcre.org/pub/pcre/pcre-$PCRE_VER.tar.gz -O - | tar xzf - -C .
-- wget https://download.libsodium.org/libsodium/releases/libsodium-$LIBSODIUM_VER.tar.gz -O - | tar xzf - -C .
+- wget https://download.libsodium.org/libsodium/releases/libsodium-$LIBSODIUM_VER.tar.gz
+  -O - | tar xzf - -C .
 - wget http://dist.schmorp.de/libev/libev-$LIBEV_VER.tar.gz -O -|tar xzf - -C .
 - git clone https://github.com/shadowsocks/libudns
 - git clone https://github.com/shadowsocks/shadowsocks-libev
@@ -25,32 +27,38 @@ script:
 - LDFLAGS=-static make -j$JOBS install
 - popd
 - pushd pcre-$PCRE_VER
-- ./configure --prefix=$BUILDROOT/dists/pcre --disable-shared --enable-utf8 --enable-unicode-properties
+- "./configure --prefix=$BUILDROOT/dists/pcre --disable-shared --enable-utf8 --enable-unicode-properties"
 - make -j$JOBS install
 - popd
 - pushd libev-$LIBEV_VER
-- ./configure --prefix=$BUILDROOT/dists/libev --disable-shared
+- "./configure --prefix=$BUILDROOT/dists/libev --disable-shared"
 - make -j$JOBS install
 - popd
 - pushd libsodium-$LIBSODIUM_VER
-- ./configure --prefix=$BUILDROOT/dists/libsodium --disable-shared --disable-ssp
+- "./configure --prefix=$BUILDROOT/dists/libsodium --disable-shared --disable-ssp"
 - make -j$JOBS install
 - popd
 - pushd libudns
-- ./autogen.sh
-- ./configure --prefix=$BUILDROOT/dists/libudns
+- "./autogen.sh"
+- "./configure --prefix=$BUILDROOT/dists/libudns"
 - make -j$JOBS install
 - popd
 - pushd shadowsocks-libev
 - git submodule init && git submodule update
-- ./autogen.sh
-- LIBS="-lpthread -lm" LDFLAGS="-Wl,-static -static -static-libgcc -L$BUILDROOT/dists/libudns/lib -L$BUILDROOT/dists/libev/lib" CFLAGS="-I$BUILDROOT/dists/libudns/include -I$BUILDROOT/dists/libev/include" ./configure --prefix=$BUILDROOT/dists/shadowsocks-libev --disable-ssp --disable-documentation --with-mbedtls=$BUILDROOT/dists/mbedtls --with-pcre=$BUILDROOT/dists/pcre --with-sodium=$BUILDROOT/dists/libsodium
+- "./autogen.sh"
+- LIBS="-lpthread -lm" LDFLAGS="-Wl,-static -static -static-libgcc -L$BUILDROOT/dists/libudns/lib
+  -L$BUILDROOT/dists/libev/lib" CFLAGS="-I$BUILDROOT/dists/libudns/include -I$BUILDROOT/dists/libev/include"
+  ./configure --prefix=$BUILDROOT/dists/shadowsocks-libev --disable-ssp --disable-documentation
+  --with-mbedtls=$BUILDROOT/dists/mbedtls --with-pcre=$BUILDROOT/dists/pcre --with-sodium=$BUILDROOT/dists/libsodium
 - make -j$JOBS install
 - popd
 - pushd simple-obfs
 - git submodule init && git submodule update
-- ./autogen.sh
-- LIBS="-lpthread -lm" LDFLAGS="-Wl,-static -static -static-libgcc -L$BUILDROOT/dists/libsodium/lib -L$BUILDROOT/dists/libudns/lib -L$BUILDROOT/dists/libev/lib" CFLAGS="-I$BUILDROOT/dists/libsodium/include -I$BUILDROOT/dists/libudns/include -I$BUILDROOT/dists/libev/include" ./configure  --prefix=$BUILDROOT/dists/shadowsocks-libev --disable-ssp --disable-documentation
+- "./autogen.sh"
+- LIBS="-lpthread -lm" LDFLAGS="-Wl,-static -static -static-libgcc -L$BUILDROOT/dists/libsodium/lib
+  -L$BUILDROOT/dists/libudns/lib -L$BUILDROOT/dists/libev/lib" CFLAGS="-I$BUILDROOT/dists/libsodium/include
+  -I$BUILDROOT/dists/libudns/include -I$BUILDROOT/dists/libev/include" ./configure  --prefix=$BUILDROOT/dists/shadowsocks-libev
+  --disable-ssp --disable-documentation
 - make -j$JOBS install
 - popd
 after_success:
@@ -58,24 +66,25 @@ after_success:
 - tar czf shadowsocks-libev-static.tar.gz shadowsocks-libev-static
 - BRANCH="master"
 - if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
--   if [ "$TRAVIS_PULL_REQUEST" = false ]; then
--     if [ -z "$TRAVIS_TAG" ]; then
--       echo -e "Starting to tag commit.\n"
--       git config --global user.email "travis@travis-ci.org"
--       git config --global user.name "Travis"
--       git tag -a v${TRAVIS_BUILD_NUMBER} -m "Travis build $TRAVIS_BUILD_NUMBER pushed a tag."
--       git push origin --tags
--       git fetch origin
--       echo -e "Done magic with tags.\n"
--     fi
--   fi
+- if [ "$TRAVIS_PULL_REQUEST" = false ]; then
+- if [ -z "$TRAVIS_TAG" ]; then
+- echo -e "Starting to tag commit.\n"
+- git config --global user.email "travis@travis-ci.org"
+- git config --global user.name "Travis"
+- git tag -a v${TRAVIS_BUILD_NUMBER} -m "Travis build $TRAVIS_BUILD_NUMBER pushed
+  a tag."
+- git push origin --tags
+- git fetch origin
+- echo -e "Done magic with tags.\n"
+- fi
+- fi
 - fi
 deploy:
   provider: releases
-  api_key:
-    secure: TDdGr6Rni5R5mNbSq0FFevd51tGQBnaD7MbdNOxkPzcyyKxSuimNDepTwiV5QWfIfWtcZSLbSVwVPxeNCG700ZFBPSm0ZJDwuNYJ+662wMZiUPUXu2IrKSNhuvzHND6biwihBtYnv1UD3KBxy81eyStHb22b/OlSrRBDFFBV8O+LUcWgqlqNS8UgLq0areoXGu+7eiuP+iQbPfmzRUiKGhXgvbcTTrencEisVURd714OrZWYeQILC0Fvo5LYoL9/tKTRt4F5IX487us/mwkZJJ5jFpKleyXQzGKnqbkPq2EaGKCjhYX3nReswxOiESbcUz9BC91ZcXJkSyjw1Gq1KzdlT01CL4jd7FrcxtCX+zHIwDsBQgikq4y56jbfUJ0J8mgnEc3jc5ybEV/3mfbU2wNagaPbqGqndL0Hh4AsDCBZNEo0ORRxqS6Ar2d1x5AzdsSap7wxazhzYtrCPy2DV0omLaS2o0UA2oC09yMI2Y5p0khEhge2i95ISwdgHm1BBPsiXAhnfjUyCfRvLhdwlJhV1MqZktGtEJEimdELfd54P1WsnvwGBucDJkb5ms5ERHINU5beGxZUHJSiIN/ZIC33PufyxEUzvOZqHdDvdPeLB/MeEXi9sU2P2VEDAojZOrmxbFN8HMSHsvtfZeBkXKkKC3xsYKjFUS0XqgPrVWI=
   file: shadowsocks-libev-static.tar.gz
   skip_cleanup: true
   on:
     branch: master
     repo: ReinForce-II/shadowsocks-libev-static
+  api-key:
+    secure: K++uo15GeXFPGQKgNx85KEhNVRThpLUP3xO51TR4kZq+3RVq6338SV9ZvpIJRHVDcvan5CDBY77Uwzsbw+E2Xmu+r1DeKt3CnXVWHJ/9Yp5j8BHP571WCjjIffIVP4JQ/Rk2VmHP1sxpwK0fpPwRuEwCzRjdTGE5IS0GHmXImVDTtT9Ulg1n/PDeWdMyUm8HlT7o9WVMaSnbHj0TzAJ0guOaY4+ym8k4vgNMNv+CWA9PAMtXFOwtN05RMIOKQx6vkdDZQvMb5b7MnY5rPFRPN2oOwndHRhVtFAB+PGSM3uk5ii95KWdZytTR06B0eOfh+LB9Nhsy/FBzh69G9t1owMXJqR+rs6HZTvv7TBGCwu0g+0Zpojxq3FdEv9E8+01XpkZFVzBh4ka2kZtfd1WO/VwgOrsl2NDj74+mpbj1cjkf13rZ/LXK+c0taWb051q3JuJR0fK78oq9es0vlj+uTCcqeHmL6JG9eyYcxLQMP2QmnoYjtvhOhCfMb7aPrnyOYY90gEcN29Rxss0YI29s5dE5MUtSMKa0D3HX0w9sBTEzm67wzkTlwDhYGnUQ9UP1pzyhSeU9jvLIAwoaHKti+ubJij6CNsUokAQNloy4yoJsuXwuJ4y75tGAS5c6rsFDJiZ75+TF5QADn/G050V6a1/8DGajcORY7fGi7Ab1oDQ=
