@@ -1,10 +1,11 @@
 language: cpp
+sudo: true
 compiler:
 - gcc
 before_install:
 - git submodule update --init --recursive
 install:
-- apt install -y automake autoconf
+- sudo apt install -y automake autoconf
 script:
 - MBEDTLS_VER=2.4.2
 - PCRE_VER=8.40
